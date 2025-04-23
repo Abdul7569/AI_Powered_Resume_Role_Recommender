@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pkl
+*.npy
+logs/
+artifacts/
+.env
+.vscode/
+.idea/
+*.DS_Store

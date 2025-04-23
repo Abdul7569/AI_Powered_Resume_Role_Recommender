@@ -1,0 +1,17 @@
+model:
+  embedding_model_name: "all-mpnet-base-v2"
+  top_n: 3
+  use_gpu: false
+
+paths:
+  role_data_path: "job_title_des.csv"
+  role_embeddings_path: "role_embeddings.pkl"
+  logs_path: "logs/model_logs.csv"
+
+logging:
+  level: "INFO"
+  file: "logs/app.log"
+
+evaluation:
+  test_data_path: "evaluation_data.csv"
+  metrics_output_path: "artifacts/evaluation_metrics.json"

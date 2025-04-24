@@ -23,7 +23,7 @@ RUN python -m spacy download en_core_web_sm
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-mpnet-base-v2')"
 
 # Generate embeddings inside image
-COPY job_title_des.csv .
+COPY job_title_des_cleaned.csv .
 RUN python -c "\
 import pandas as pd, pickle; \
 from sentence_transformers import SentenceTransformer; \

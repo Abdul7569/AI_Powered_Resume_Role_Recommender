@@ -28,7 +28,7 @@ RUN python -c "\
 import pandas as pd, pickle; \
 from sentence_transformers import SentenceTransformer; \
 model = SentenceTransformer('all-mpnet-base-v2'); \
-desc = pd.read_csv('job_title_des.csv')['Cleaned_Description'].tolist(); \
+desc = pd.read_csv('job_title_des_cleaned.csv')['Cleaned_Description'].tolist(); \
 embs = model.encode(desc, convert_to_tensor=True); \
 pickle.dump(embs, open('role_embeddings.pkl', 'wb'))"
 

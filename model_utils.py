@@ -11,10 +11,37 @@ print("⏳ Loading model...")
 model = SentenceTransformer('all-mpnet-base-v2')
 nlp = spacy.load("en_core_web_sm")
 
-# Load roles and descriptions
-df = pd.read_csv("job_title_des.csv")
+# Load base job title dataset
+df = pd.read_csv("job_title_des_cleaned.csv")
 roles = df['Job Title'].tolist()
 descriptions = df['Cleaned_Description'].tolist()
+
+
+# Load and incorporate feedback into roles and descriptions
+feedback_path = "logs/user_feedback.csv"
+if os.path.exists(feedback_path):
+    print("🔁 Using user feedback to improve model...")
+    feedback_df = pd.read_csv(feedback_path)
+    feedback_df.dropna(subset=["resume_text", "true_role"], inplace=True)
+    feedback_df = feedback_df[feedback_df["true_role"].str.len() > 2]
+    
+    # Combine original and feedback data
+    combined_df = pd.concat([
+        df[['Cleaned_Description', 'Job Title']].rename(columns={
+            'Cleaned_Description': 'resume_text',
+            'Job Title': 'true_role'
+        }),
+        feedback_df[['resume_text', 'true_role']]
+    ], ignore_index=True)
+
+    # Group by role and generate one description per role
+    grouped = combined_df.groupby("true_role")['resume_text'].apply(lambda x: " ".join(x)).reset_index()
+    descriptions = grouped["resume_text"].tolist()
+    
+    descriptions = [str(desc).strip() for desc in descriptions if isinstance(desc, str) or isinstance(desc, int)]
+
+
+    roles = grouped["true_role"].tolist()
 
 # Only load or generate embeddings if needed
 if os.path.exists("role_embeddings.pkl"):
@@ -77,6 +104,7 @@ def recommend_top_roles_from_resume(resume_text, roles, descriptions, role_embed
 
     resume_keywords = extract_keywords(resume_text)
     return results, resume_keywords
+
 def compute_and_save_metrics(predictions, save_path="artifacts/evaluation_metrics.json"):
     import json
     os.makedirs(os.path.dirname(save_path), exist_ok=True)

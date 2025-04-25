@@ -2,14 +2,20 @@ import os
 import io
 import re
 import json
-import fitz, numpy as np, pandas as pd, spacy, pickle
+import fitz, numpy as np, pandas as pd
+import spacy
+import pickle
 from sentence_transformers import SentenceTransformer, util
 import docx2txt
 
 # Load model once
 print("⏳ Loading model...")
 model = SentenceTransformer('all-mpnet-base-v2')
-nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    spacy.cli.download("en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 
 # Load base job title dataset
 df = pd.read_csv("job_title_des_cleaned.csv")

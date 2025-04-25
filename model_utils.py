@@ -1,10 +1,10 @@
+import os
 import io
-import re, fitz, numpy as np, pandas as pd, spacy, pickle
+import re
+import json
+import fitz, numpy as np, pandas as pd, spacy, pickle
 from sentence_transformers import SentenceTransformer, util
 import docx2txt
-import csv
-from datetime import datetime
-import os
 
 # Load model once
 print("⏳ Loading model...")
@@ -106,7 +106,7 @@ def recommend_top_roles_from_resume(resume_text, roles, descriptions, role_embed
     return results, resume_keywords
 
 def compute_and_save_metrics(predictions, save_path="artifacts/evaluation_metrics.json"):
-    import json
+   
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
     top_3_accuracy = 1.0  # placeholder (update based on ground truth if needed)

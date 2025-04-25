@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'logs/user_feedback.csv'
-      - 'job_title_des.csv'
+      - 'job_title_des_cleaned.csv'
       - '**.py'
       - 'Dockerfile'
 

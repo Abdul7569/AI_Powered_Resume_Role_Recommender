@@ -9,8 +9,8 @@ on:
       - 'job_title_des_cleaned.csv'
       - '**.py'
       - 'Dockerfile'
-
-  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 1'  # optional weekly retraining every Monday at 2AM UTC
 
 jobs:
   docker-build-and-push:
@@ -30,8 +30,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: 🔁 Regenerate embeddings
-      run: python model_utils.py
+    - name: 🔁 Retrain model on feedback + save updated embeddings
+      run: python retrain.py
 
     - name: 📊 Run evaluation
       run: python evaluate.py

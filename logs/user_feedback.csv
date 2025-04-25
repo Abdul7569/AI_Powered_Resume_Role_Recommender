@@ -13,3 +13,8 @@ capacity utilization, throughput, yield, scrap, availability, customer return ra
 effectiveness.
 Proficient in lean methodologies by using technical tools such as kaizen, workplace organization and visual
 controls","industrial enginner, supply chain analyst,manufacturing enginner",manufacturing engineer
+2025-04-25T01:36:10.916131,"•	Pioneered the design of AI systems that delivered a 25% reduction in inventory waste and saved ~$120K annually by aligning LSTM and XGBoost models with business forecasting goals across 500+ SKUs
+•	Streamlined data workflows by building and orchestrating ETL processes with Apache Airflow and Spark, cutting data preparation time by 60%, slashed manual intervention by 80%, through techniques like imputation and feature engineering on large datasets.
+•	Developed intelligent ML solutions, including a fraud detection pipeline (Random Forest, KNN) that improved early detection by 17%, and a resume-role matching engine (BERT, SpaCy) enhancing job recommendation relevance.
+•	Enhanced stakeholder understanding of AI outputs by applying explainable AI (Grad-CAM) and creating Power BI dashboards, alongside implementing CI/CD pipelines with GitHub Actions for faster iteration and improved trust in model outcomes.
+",manufacturing engineer,data scientist

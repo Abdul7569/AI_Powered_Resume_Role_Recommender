@@ -1,20 +1,9 @@
 timestamp,resume_text,predicted_role,true_role
-2025-04-24T09:02:12.292838,"•	Proficient in Python, SQL, Excel, Tableau, and machine learning, with hands-on experience in data cleaning, EDA, anomaly detection, and predictive modelling across large datasets (10,000+ records), supporting security analytics and fraud detection initiatives.
+2025-04-25T12:34:56,"Skilled in Python, SQL, and data visualization.",Data Analyst,Data Analyst
+2025-04-25T12:34:56,"Skilled in Python, SQL, and data visualization.",Data Analyst,Data Analyst
+"2025-04-25T12:34:56","Skilled in Python, SQL, and data visualization.","Data Analyst","Data Analyst"
+2025-04-25T11:50:48.039310,"•	Proficient in Python, SQL, Excel, Tableau, and machine learning, with hands-on experience in data cleaning, EDA, anomaly detection, and predictive modelling across large datasets (10,000+ records), supporting security analytics and fraud detection initiatives.
 •	Demonstrated expertise in enterprise risk management, conducting threat modelling, access control audits, policy compliance evaluations, and ITGC assessments, leading to a 15% increase in audit compliance and optimized client operations.
 •	Successfully developed and deployed end-to-end ML-powered web applications using Flask, React.js, and PostgreSQL, including spam detection and chatbot systems trained on custom NLP pipelines with Naive Bayes, TF-IDF, and TensorFlow.
-•	Strong communicator with a track record of delivering data-driven presentations and actionable insights to cross-functional stakeholders, enabling strategic planning and data-informed process enhancements across multiple client engagements
-",machine learning machine leanring engineer data analyst,data scientist
-2025-04-24T09:47:47.438349,"2+ years of experience in manufacturing industry including BOM and international freight management.
- Strong knowledge of ERP systems and order fulfilment processes by day-to-day monitoring using SAPERP for
-workflow visibility.
-Applied transportation management system software to plan and execute physical movement of goods.
-Strong understanding of KPI’s including On-time delivery, production schedule attainment, total cycle time,
-capacity utilization, throughput, yield, scrap, availability, customer return rate, and overall equipment
-effectiveness.
-Proficient in lean methodologies by using technical tools such as kaizen, workplace organization and visual
-controls","industrial enginner, supply chain analyst,manufacturing enginner",manufacturing engineer
-2025-04-25T01:36:10.916131,"•	Pioneered the design of AI systems that delivered a 25% reduction in inventory waste and saved ~$120K annually by aligning LSTM and XGBoost models with business forecasting goals across 500+ SKUs
-•	Streamlined data workflows by building and orchestrating ETL processes with Apache Airflow and Spark, cutting data preparation time by 60%, slashed manual intervention by 80%, through techniques like imputation and feature engineering on large datasets.
-•	Developed intelligent ML solutions, including a fraud detection pipeline (Random Forest, KNN) that improved early detection by 17%, and a resume-role matching engine (BERT, SpaCy) enhancing job recommendation relevance.
-•	Enhanced stakeholder understanding of AI outputs by applying explainable AI (Grad-CAM) and creating Power BI dashboards, alongside implementing CI/CD pipelines with GitHub Actions for faster iteration and improved trust in model outcomes.
-",manufacturing engineer,data scientist
+•	Strong communicator with a track record of delivering data-driven presentations and actionable insights to cross-functional stakeholders, enabling strategic planning and data-informed process enhancements across multiple client engagements.
+",django developer,data scientist

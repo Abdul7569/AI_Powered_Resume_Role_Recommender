@@ -33,11 +33,6 @@ def evaluate_model(model_path="Sample_Evaluation_Data.csv", top_k=3):
         true_role = row['true_role'].strip().lower()
         predicted_roles_cleaned = [r.strip().lower() for r in top_roles]
 
-        print(f"\n--- Resume #{i+1} ---")
-        print(f"True Role        : {true_role}")
-        print(f"Top Predictions  : {top_roles}")
-        print(f"Cleaned Top Roles: {predicted_roles_cleaned}")
-
         if true_role in predicted_roles_cleaned:
             print("✅ MATCHED!")
             correct += 1

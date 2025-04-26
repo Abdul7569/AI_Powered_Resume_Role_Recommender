@@ -1,4 +1,4 @@
 {
-  "top_3_accuracy": 0.9,
-  "average_max_similarity_score": 0.6142
+    "top_3_accuracy": 1.0,
+    "average_max_similarity_score": 0.7764
 }

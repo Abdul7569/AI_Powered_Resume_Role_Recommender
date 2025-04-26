@@ -1,33 +1,38 @@
+# ------------------- Imports -------------------
 import os
 import io
 import re
 import json
-import fitz, numpy as np, pandas as pd
-import spacy
 import pickle
-from sentence_transformers import SentenceTransformer, util
-import docx2txt
+import csv
+from datetime import datetime
 
-# Load model once
+import fitz
+import numpy as np
+import pandas as pd
+import spacy
+import docx2txt
+from sentence_transformers import SentenceTransformer, util
+
+
+# ✅ Load the model and NLP pipeline
 print("⏳ Loading model...")
-model = SentenceTransformer('all-mpnet-base-v2')
+model = SentenceTransformer('all-mpnet-base-v2', device='cpu')
 nlp = spacy.load("en_core_web_sm")
 
-# Load base job title dataset
+# ✅ Load base job title dataset
 df = pd.read_csv("job_title_des_cleaned.csv")
 roles = df['Job Title'].tolist()
 descriptions = df['Cleaned_Description'].tolist()
 
-
-# Load and incorporate feedback into roles and descriptions
+# ✅ Load user feedback and merge if available
 feedback_path = "logs/user_feedback.csv"
 if os.path.exists(feedback_path):
     print("🔁 Using user feedback to improve model...")
     feedback_df = pd.read_csv(feedback_path)
     feedback_df.dropna(subset=["resume_text", "true_role"], inplace=True)
     feedback_df = feedback_df[feedback_df["true_role"].str.len() > 2]
-    
-    # Combine original and feedback data
+
     combined_df = pd.concat([
         df[['Cleaned_Description', 'Job Title']].rename(columns={
             'Cleaned_Description': 'resume_text',
@@ -36,16 +41,11 @@ if os.path.exists(feedback_path):
         feedback_df[['resume_text', 'true_role']]
     ], ignore_index=True)
 
-    # Group by role and generate one description per role
     grouped = combined_df.groupby("true_role")['resume_text'].apply(lambda x: " ".join(x)).reset_index()
-    descriptions = grouped["resume_text"].tolist()
-    
-    descriptions = [str(desc).strip() for desc in descriptions if isinstance(desc, str) or isinstance(desc, int)]
-
-
+    descriptions = [str(desc).strip() for desc in grouped["resume_text"].tolist() if isinstance(desc, (str, int))]
     roles = grouped["true_role"].tolist()
 
-# Only load or generate embeddings if needed
+# ✅ Load or generate role embeddings
 if os.path.exists("role_embeddings.pkl"):
     print("📦 Loading precomputed role embeddings...")
     with open("role_embeddings.pkl", "rb") as f:
@@ -60,6 +60,7 @@ else:
 # ------------------- Utility Functions -------------------
 
 def extract_text_from_resume(uploaded_file):
+    """Extract text from uploaded resume (PDF or DOCX)."""
     if uploaded_file.name.endswith(".pdf"):
         doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
         text = "".join(page.get_text() for page in doc)
@@ -71,22 +72,26 @@ def extract_text_from_resume(uploaded_file):
         return "Unsupported file type."
 
 def clean_text(text):
+    """Basic text cleaning: lowercasing, removing punctuation."""
     text = text.lower()
     text = re.sub(r'\n', ' ', text)
     text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return text
 
 def extract_keywords(text):
+    """Extract key named entities from text using spaCy."""
     doc = nlp(text)
     skills = [ent.text for ent in doc.ents if ent.label_ in ['ORG', 'PRODUCT', 'WORK_OF_ART']]
     return list(set(skills))
 
 def explain_match(resume_text, job_description):
+    """Find top common words between resume and job description."""
     resume_words = set(resume_text.lower().split())
     job_words = set(job_description.lower().split())
     return list(resume_words & job_words)[:10]
 
 def recommend_top_roles_from_resume(resume_text, roles, descriptions, role_embeddings, model, top_n=3):
+    """Recommend top matching job roles based on resume content."""
     cleaned_resume = clean_text(resume_text)
     resume_embedding = model.encode(cleaned_resume, convert_to_tensor=True)
     similarity_scores = util.cos_sim(resume_embedding, role_embeddings)[0].cpu().numpy()
@@ -95,12 +100,16 @@ def recommend_top_roles_from_resume(resume_text, roles, descriptions, role_embed
     seen_titles = set()
     results = []
     for idx in sorted_indices:
+        if idx >= len(roles):  # 🛡️ Protection against out-of-bounds
+            continue
         role = roles[idx]
         score = round(similarity_scores[idx] * 100, 2)
         explanation = explain_match(cleaned_resume, descriptions[idx])
+
         if role not in seen_titles:
             results.append({"role": role, "confidence": score, "keywords": explanation})
             seen_titles.add(role)
+
         if len(results) == top_n:
             break
 
@@ -108,11 +117,11 @@ def recommend_top_roles_from_resume(resume_text, roles, descriptions, role_embed
     return results, resume_keywords
 
 def compute_and_save_metrics(predictions, save_path="artifacts/evaluation_metrics.json"):
-   
+    """Compute evaluation metrics and save to disk."""
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-    top_3_accuracy = 1.0  # placeholder (update based on ground truth if needed)
-    avg_confidence = predictions[0]["confidence"] / 100  # convert from % if needed
+    top_3_accuracy = 1.0  # Placeholder (update later if needed)
+    avg_confidence = predictions[0]["confidence"] / 100  # convert from %
 
     evaluation_metrics = {
         "top_3_accuracy": top_3_accuracy,
@@ -122,12 +131,11 @@ def compute_and_save_metrics(predictions, save_path="artifacts/evaluation_metric
     with open(save_path, "w") as f:
         json.dump(evaluation_metrics, f, indent=4)
 
+    print(f"✅ Metrics saved to: {save_path}")
     return evaluation_metrics
 
 def log_prediction(resume_text, predictions, resume_keywords, evaluation_metrics, log_path="logs/model_logs.csv"):
-    import os, csv
-    from datetime import datetime
-
+    """Log each prediction to a CSV file for tracking and retraining."""
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
     row = {

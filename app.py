@@ -1,4 +1,10 @@
+import asyncio
 import streamlit as st
+# 🛡️ FIX: Ensure there is a running event loop
+try:
+    asyncio.get_running_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
 from model_utils import (
     extract_text_from_resume,
     recommend_top_roles_from_resume,

@@ -21,7 +21,7 @@ except ImportError:
     upload_model_log = None
 
 # ✅ Load the model and NLP pipeline
-print("\u23F3 Loading model...")
+print("Loading model...")
 model = SentenceTransformer('all-mpnet-base-v2', device='cpu')
 nlp = spacy.load("en_core_web_sm")
 
@@ -33,7 +33,7 @@ descriptions = df['Cleaned_Description'].tolist()
 # ✅ Load user feedback and merge if available
 feedback_path = "logs/user_feedback.csv"
 if os.path.exists(feedback_path):
-    print("\uD83D\uDD01 Using user feedback to improve model...")
+    print(" Using user feedback to improve model...")
     feedback_df = pd.read_csv(feedback_path)
     feedback_df.dropna(subset=["resume_text", "true_role"], inplace=True)
     feedback_df = feedback_df[feedback_df["true_role"].str.len() > 2]
@@ -52,15 +52,15 @@ if os.path.exists(feedback_path):
 
 # ✅ Load or generate role embeddings
 if os.path.exists("role_embeddings.pkl"):
-    print("\ud83d\udce6 Loading precomputed role embeddings...")
+    print("Loading precomputed role embeddings...")
     with open("role_embeddings.pkl", "rb") as f:
         role_embeddings = pickle.load(f)
 else:
-    print("\u26a0\ufe0f No embeddings found. Generating and saving...")
+    print("No embeddings found. Generating and saving...")
     role_embeddings = model.encode(descriptions, convert_to_tensor=True)
     with open("role_embeddings.pkl", "wb") as f:
         pickle.dump(role_embeddings, f)
-    print("\u2705 Embeddings saved.")
+    print("Embeddings saved.")
 
 # ------------------- Utility Functions -------------------
 
@@ -140,7 +140,7 @@ def compute_and_save_metrics(predictions, save_path="artifacts/evaluation_metric
     with open(save_path, "w") as f:
         json.dump(evaluation_metrics, f, indent=4)
 
-    print(f"\u2705 Metrics saved to: {save_path}")
+    print(f"Metrics saved to: {save_path}")
     return evaluation_metrics
 
 def log_prediction(resume_text, predictions, resume_keywords, evaluation_metrics, log_path="logs/model_logs.csv"):

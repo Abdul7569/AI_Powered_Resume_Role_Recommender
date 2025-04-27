@@ -1,3 +1,5 @@
+# ✅ Streamlit page config
+st.set_page_config(page_title="AI Job Recommender", page_icon="🤖", layout="centered")
 import asyncio
 import streamlit as st
 import pandas as pd
@@ -68,8 +70,7 @@ else:
     df.dropna(subset=["resume_text", "true_role"], inplace=True)
     df.to_csv(LOG_PATH, index=False)
 
-# ✅ Streamlit page config
-st.set_page_config(page_title="AI Job Recommender", page_icon="🤖", layout="centered")
+
 
 # ✅ App Header
 st.markdown("<h1 style='text-align: center; color: #4CAF50;'>📄 AI-Powered Job Role Recommender</h1>", unsafe_allow_html=True)

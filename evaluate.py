@@ -13,7 +13,7 @@ print(df.head())
 print(f"✅ Loaded {len(df)} evaluation samples.")
 
 def evaluate_model(model_path="Sample_Evaluation_Data.csv", top_k=3):
-    model = SentenceTransformer('all-mpnet-base-v2')
+    model = SentenceTransformer('all-mpnet-base-v2',device="cpu")
     df = pd.read_csv(model_path)
 
     correct = 0

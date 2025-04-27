@@ -1,10 +1,10 @@
 import asyncio
 import streamlit as st
-# 🛡️ FIX: Ensure there is a running event loop
-try:
-    asyncio.get_running_loop()
-except RuntimeError:
-    asyncio.set_event_loop(asyncio.new_event_loop())
+import pandas as pd
+import os
+import csv
+from datetime import datetime
+from sentence_transformers import SentenceTransformer
 from model_utils import (
     extract_text_from_resume,
     recommend_top_roles_from_resume,
@@ -16,11 +16,13 @@ from model_utils import (
     compute_and_save_metrics
 )
 from evaluate import evaluate_model
-from sentence_transformers import SentenceTransformer
-import os
-from datetime import datetime
-import pandas as pd
-import csv
+from firebase_utils import upload_user_feedback
+
+# 🛡️ FIX: Ensure there is a running event loop
+try:
+    asyncio.get_running_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
 
 # ✅ Load model using Streamlit caching
 @st.cache_resource
@@ -106,31 +108,22 @@ Fill in the form below to log your real role. This feedback is used to retrain t
 """)
 
 with st.form("feedback_form"):
-    resume_text = st.text_area("Paste your resume or job summary", height=200)
+    feedback_resume_text = st.text_area("Paste your resume or job summary", height=200)
     predicted_role = st.text_input("What did our app predict for you?")
     correct_role = st.text_input("What is your actual role?")
     submit = st.form_submit_button("Submit Feedback")
 
 if submit:
-    if not resume_text.strip():
+    if not feedback_resume_text.strip():
         st.error("⚠️ Please paste your resume text.")
     elif not predicted_role.strip():
         st.error("⚠️ Please enter what role our app predicted.")
     elif not correct_role.strip():
         st.error("⚠️ Please enter your actual (correct) role.")
     else:
-        os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
-        feedback = {
-            "timestamp": datetime.now().isoformat(),
-            "resume_text": resume_text,
-            "predicted_role": predicted_role,
-            "true_role": correct_role
-        }
-        df = pd.DataFrame([feedback])
-
-        if os.path.exists(LOG_PATH):
-            df.to_csv(LOG_PATH, mode="a", header=False, index=False)
-        else:
-            df.to_csv(LOG_PATH, index=False)
-
-        st.success("🎉 Thanks! Your feedback has been recorded. It will be used to retrain and improve the model!")
+        upload_user_feedback(
+            resume_text=feedback_resume_text,
+            predicted_role=predicted_role.strip(),
+            true_role=correct_role.strip()
+        )
+        st.success("🎉 Thanks! Your feedback has been recorded and uploaded!")

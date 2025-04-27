@@ -14,9 +14,14 @@ import spacy
 import docx2txt
 from sentence_transformers import SentenceTransformer, util
 
+# ✅ Optional: Import Firebase uploader if available
+try:
+    from firebase_utils import upload_model_log  # You need to create firebase_utils.py separately
+except ImportError:
+    upload_model_log = None
 
 # ✅ Load the model and NLP pipeline
-print("⏳ Loading model...")
+print("\u23F3 Loading model...")
 model = SentenceTransformer('all-mpnet-base-v2', device='cpu')
 nlp = spacy.load("en_core_web_sm")
 
@@ -28,7 +33,7 @@ descriptions = df['Cleaned_Description'].tolist()
 # ✅ Load user feedback and merge if available
 feedback_path = "logs/user_feedback.csv"
 if os.path.exists(feedback_path):
-    print("🔁 Using user feedback to improve model...")
+    print("\uD83D\uDD01 Using user feedback to improve model...")
     feedback_df = pd.read_csv(feedback_path)
     feedback_df.dropna(subset=["resume_text", "true_role"], inplace=True)
     feedback_df = feedback_df[feedback_df["true_role"].str.len() > 2]
@@ -47,20 +52,19 @@ if os.path.exists(feedback_path):
 
 # ✅ Load or generate role embeddings
 if os.path.exists("role_embeddings.pkl"):
-    print("📦 Loading precomputed role embeddings...")
+    print("\ud83d\udce6 Loading precomputed role embeddings...")
     with open("role_embeddings.pkl", "rb") as f:
         role_embeddings = pickle.load(f)
 else:
-    print("⚠️ No embeddings found. Generating and saving...")
+    print("\u26a0\ufe0f No embeddings found. Generating and saving...")
     role_embeddings = model.encode(descriptions, convert_to_tensor=True)
     with open("role_embeddings.pkl", "wb") as f:
         pickle.dump(role_embeddings, f)
-    print("✅ Embeddings saved.")
+    print("\u2705 Embeddings saved.")
 
 # ------------------- Utility Functions -------------------
 
 def extract_text_from_resume(uploaded_file):
-    """Extract text from uploaded resume (PDF or DOCX)."""
     if uploaded_file.name.endswith(".pdf"):
         doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
         text = "".join(page.get_text() for page in doc)
@@ -72,26 +76,22 @@ def extract_text_from_resume(uploaded_file):
         return "Unsupported file type."
 
 def clean_text(text):
-    """Basic text cleaning: lowercasing, removing punctuation."""
     text = text.lower()
     text = re.sub(r'\n', ' ', text)
     text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return text
 
 def extract_keywords(text):
-    """Extract key named entities from text using spaCy."""
     doc = nlp(text)
     skills = [ent.text for ent in doc.ents if ent.label_ in ['ORG', 'PRODUCT', 'WORK_OF_ART']]
     return list(set(skills))
 
 def explain_match(resume_text, job_description):
-    """Find top common words between resume and job description."""
     resume_words = set(resume_text.lower().split())
     job_words = set(job_description.lower().split())
     return list(resume_words & job_words)[:10]
 
 def recommend_top_roles_from_resume(resume_text, roles, descriptions, role_embeddings, model, top_n=3):
-    """Recommend top matching job roles based on resume content."""
     cleaned_resume = clean_text(resume_text)
     resume_embedding = model.encode(cleaned_resume, convert_to_tensor=True)
     similarity_scores = util.cos_sim(resume_embedding, role_embeddings)[0].cpu().numpy()
@@ -100,7 +100,7 @@ def recommend_top_roles_from_resume(resume_text, roles, descriptions, role_embed
     seen_titles = set()
     results = []
     for idx in sorted_indices:
-        if idx >= len(roles):  # 🛡️ Protection against out-of-bounds
+        if idx >= len(roles):
             continue
         role = roles[idx]
         score = round(similarity_scores[idx] * 100, 2)
@@ -114,14 +114,23 @@ def recommend_top_roles_from_resume(resume_text, roles, descriptions, role_embed
             break
 
     resume_keywords = extract_keywords(resume_text)
+
+    # ✅ After prediction, log to Firebase if available
+    if upload_model_log:
+        upload_model_log(
+            resume_text=resume_text,
+            predicted_roles=[item['role'] for item in results],
+            confidence_scores=[item['confidence'] for item in results],
+            resume_keywords=resume_keywords
+        )
+
     return results, resume_keywords
 
 def compute_and_save_metrics(predictions, save_path="artifacts/evaluation_metrics.json"):
-    """Compute evaluation metrics and save to disk."""
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-    top_3_accuracy = 1.0  # Placeholder (update later if needed)
-    avg_confidence = predictions[0]["confidence"] / 100  # convert from %
+    top_3_accuracy = 1.0  # Placeholder
+    avg_confidence = predictions[0]["confidence"] / 100
 
     evaluation_metrics = {
         "top_3_accuracy": top_3_accuracy,
@@ -131,11 +140,10 @@ def compute_and_save_metrics(predictions, save_path="artifacts/evaluation_metric
     with open(save_path, "w") as f:
         json.dump(evaluation_metrics, f, indent=4)
 
-    print(f"✅ Metrics saved to: {save_path}")
+    print(f"\u2705 Metrics saved to: {save_path}")
     return evaluation_metrics
 
 def log_prediction(resume_text, predictions, resume_keywords, evaluation_metrics, log_path="logs/model_logs.csv"):
-    """Log each prediction to a CSV file for tracking and retraining."""
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
     row = {

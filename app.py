@@ -19,7 +19,7 @@ from model_utils import (
 )
 from evaluate import evaluate_model
 # from firebase_utils import upload_user_feedback # Commented out to address potential import issues
-from firebase_admin import credentials, initialize_app
+from firebase_admin import credentials, initialize_app, db  # Import db as well
 
 # 🛡️ FIX: Ensure there is a running event loop
 try:
@@ -36,11 +36,11 @@ def load_model():
 model = load_model()
 
 # ✅ Initialize Firebase Admin SDK from Streamlit Secrets
-if not initialize_app._apps:
+if not firebase_admin._apps:
     try:
         cred_dict = st.secrets["firebase_key"]
         cred = credentials.Certificate(cred_dict)
-        initialize_app(cred, {
+        firebase_admin.initialize_app(cred, {
             'databaseURL': 'https://resume-role-recommender-default-rtdb.firebaseio.com/' # Replace with your actual URL if different
         })
         print("Firebase app initialized using Streamlit secrets.")
@@ -138,7 +138,7 @@ if submit:
         st.error("⚠️ Please enter your actual (correct) role.")
     else:
         # Ensure firebase_admin app is initialized before using it
-        if initialize_app._apps:
+        if firebase_admin._apps:  # Corrected the check here
             try:
                 from firebase_utils import upload_user_feedback # Import here to avoid issues if Firebase isn't initialized
                 upload_user_feedback(

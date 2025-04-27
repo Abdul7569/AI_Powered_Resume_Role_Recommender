@@ -1,7 +1,7 @@
 # ✅ Streamlit page config
+import streamlit as st
 st.set_page_config(page_title="AI Job Recommender", page_icon="🤖", layout="centered")
 import asyncio
-import streamlit as st
 import pandas as pd
 import os
 import csv

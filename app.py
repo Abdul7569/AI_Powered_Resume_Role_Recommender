@@ -16,7 +16,8 @@ from model_utils import (
     compute_and_save_metrics
 )
 from evaluate import evaluate_model
-from firebase_utils import upload_user_feedback
+# from firebase_utils import upload_user_feedback # Commented out to address potential import issues
+from firebase_admin import credentials, initialize_app
 
 # 🛡️ FIX: Ensure there is a running event loop
 try:
@@ -31,6 +32,20 @@ def load_model():
     return model
 
 model = load_model()
+
+# ✅ Initialize Firebase Admin SDK from Streamlit Secrets
+if not initialize_app._apps:
+    try:
+        cred_dict = st.secrets["firebase_key"]
+        cred = credentials.Certificate(cred_dict)
+        initialize_app(cred, {
+            'databaseURL': 'https://resume-role-recommender-default-rtdb.firebaseio.com/' # Replace with your actual URL if different
+        })
+        print("Firebase app initialized using Streamlit secrets.")
+    except KeyError:
+        st.error("Firebase credentials not found in Streamlit secrets!")
+    except Exception as e:
+        st.error(f"Error initializing Firebase app from secrets: {e}")
 
 # ✅ Feedback log path
 LOG_PATH = "logs/user_feedback.csv"
@@ -121,9 +136,19 @@ if submit:
     elif not correct_role.strip():
         st.error("⚠️ Please enter your actual (correct) role.")
     else:
-        upload_user_feedback(
-            resume_text=feedback_resume_text,
-            predicted_role=predicted_role.strip(),
-            true_role=correct_role.strip()
-        )
-        st.success("🎉 Thanks! Your feedback has been recorded and uploaded!")
+        # Ensure firebase_admin app is initialized before using it
+        if initialize_app._apps:
+            try:
+                from firebase_utils import upload_user_feedback # Import here to avoid issues if Firebase isn't initialized
+                upload_user_feedback(
+                    resume_text=feedback_resume_text,
+                    predicted_role=predicted_role.strip(),
+                    true_role=correct_role.strip()
+                )
+                st.success("🎉 Thanks! Your feedback has been recorded and uploaded!")
+            except ImportError as e:
+                st.error(f"⚠️ Error: Could not import 'upload_user_feedback'. Ensure 'firebase_utils.py' exists and is correctly implemented: {e}")
+            except Exception as e:
+                st.error(f"⚠️ Error uploading feedback to Firebase: {e}")
+        else:
+            st.warning("⚠️ Firebase Admin SDK not initialized. Feedback not uploaded.")

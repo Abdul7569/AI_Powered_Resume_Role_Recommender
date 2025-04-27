@@ -4,4 +4,4 @@ __pycache__/
 *.pkl
 *.log
 .DS_Store
-firebase_key.json
+

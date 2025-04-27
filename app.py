@@ -1,10 +1,13 @@
 # ✅ Streamlit page config
 import streamlit as st
+
+
 st.set_page_config(page_title="AI Job Recommender", page_icon="🤖", layout="centered")
+
 import asyncio
 import pandas as pd
 import os
-import csv
+
 from datetime import datetime
 from sentence_transformers import SentenceTransformer
 from model_utils import (
@@ -19,6 +22,7 @@ from model_utils import (
 )
 from evaluate import evaluate_model
 # from firebase_utils import upload_user_feedback # Commented out to address potential import issues
+import firebase_admin
 from firebase_admin import credentials, initialize_app, db  # Import db as well
 
 # 🛡️ FIX: Ensure there is a running event loop

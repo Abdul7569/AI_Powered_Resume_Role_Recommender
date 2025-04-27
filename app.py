@@ -36,11 +36,10 @@ except RuntimeError:
 def load_model():
     model = SentenceTransformer('all-mpnet-base-v2', device='cpu')
     return model
-
 model = load_model()
 
 # ✅ Initialize Firebase Admin SDK from Streamlit Secrets
-if not firebase_admin._apps:
+if firebase_admin._apps:
     try:
         cred_dict = st.secrets["firebase_key"]
         cred = credentials.Certificate(cred_dict)

@@ -1,7 +1,7 @@
 timestamp,resume_text,predicted_role,true_role
 2025-04-25T12:34:56,"Skilled in Python, SQL, and data visualization.",Data Analyst,Data Analyst
 2025-04-25T12:34:56,"Skilled in Python, SQL, and data visualization.",Data Analyst,Data Analyst
-"2025-04-25T12:34:56","Skilled in Python, SQL, and data visualization.","Data Analyst","Data Analyst"
+2025-04-25T12:34:56,"Skilled in Python, SQL, and data visualization.",Data Analyst,Data Analyst
 2025-04-25T11:50:48.039310,"•	Proficient in Python, SQL, Excel, Tableau, and machine learning, with hands-on experience in data cleaning, EDA, anomaly detection, and predictive modelling across large datasets (10,000+ records), supporting security analytics and fraud detection initiatives.
 •	Demonstrated expertise in enterprise risk management, conducting threat modelling, access control audits, policy compliance evaluations, and ITGC assessments, leading to a 15% increase in audit compliance and optimized client operations.
 •	Successfully developed and deployed end-to-end ML-powered web applications using Flask, React.js, and PostgreSQL, including spam detection and chatbot systems trained on custom NLP pipelines with Naive Bayes, TF-IDF, and TensorFlow.

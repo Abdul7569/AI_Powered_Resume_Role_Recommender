@@ -8,3 +8,4 @@ artifacts/
 .vscode/
 .idea/
 *.DS_Store
+firebase_key

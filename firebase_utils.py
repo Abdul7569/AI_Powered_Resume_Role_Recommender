@@ -2,11 +2,13 @@ import firebase_admin
 from firebase_admin import credentials, db
 from datetime import datetime
 import streamlit as st  # Import streamlit if you intend to use it here
+import json
 
 # Initialize Firebase Admin SDK from Streamlit Secrets
 if not firebase_admin._apps:
     try:
-        cred_dict = st.secrets["firebase_key"]
+        cred_dict_str = st.secrets["firebase_key"]
+        cred_dict=json.loads(cred_dict_str)
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred, {
             'databaseURL': 'https://resume-role-recommender-default-rtdb.firebaseio.com/'

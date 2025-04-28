@@ -2,21 +2,32 @@ import firebase_admin
 from firebase_admin import credentials, db
 from datetime import datetime
 import streamlit as st  # Import streamlit if you intend to use it here
+import json
 
 # Initialize Firebase Admin SDK from Streamlit Secrets
-if not firebase_admin._apps:
-    try:
-        cred_dict = st.secrets["firebase_key"]
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://resume-role-recommender-default-rtdb.firebaseio.com/'
-        })
-        print("✅ Firebase app initialized using Streamlit secrets in firebase_utils.py")
-    except KeyError:
-        print("⚠️ Firebase credentials not found in Streamlit secrets in firebase_utils.py. Ensure 'firebase_key' secret is set.")
-        # You might want to handle this more gracefully in a deployed environment
-    except Exception as e:
-        print(f"⚠️ Error initializing Firebase app in firebase_utils.py: {e}")
+def initialize_firebase():
+    if not firebase_admin._apps:
+        try:
+            cred_str = st.secrets["firebase_key"]
+            print(f"Type of cred_str from secrets: {type(cred_str)}") # Debugging line
+            print(f"Content of cred_str (first 50 chars): {cred_str[:50]}") # Debugging line
+            cred_dict = json.loads(cred_str)
+            print(f"Type of cred_dict after json.loads(): {type(cred_dict)}") # Debugging line
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred, {
+                'databaseURL': 'https://resume-role-recommender-default-rtdb.firebaseio.com/'
+            })
+            print("Firebase app initialized in firebase_utils.py")
+        except KeyError:
+            st.error("Firebase credentials not found in Streamlit secrets!")
+            return None
+        except json.JSONDecodeError as e:
+            st.error(f"Error decoding Firebase credentials from secrets: {e}")
+            return None
+        except Exception as e:
+            st.error(f"Error initializing Firebase app in firebase_utils.py: {e}")
+            return None
+    return firebase_admin.get_app()
 
 def upload_model_log(resume_text, predicted_roles, confidence_scores, resume_keywords):
     try:

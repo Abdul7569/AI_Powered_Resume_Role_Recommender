@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'logs/user_feedback.csv'
+      - 'logs/model_logs.csv'
       - 'job_title_des_cleaned.csv'
       - '**.py'
       - 'Dockerfile'
@@ -31,8 +32,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: 🔁 Retrain model on feedback + save updated embeddings
-      run: python retrain.py
+    - name: 🔑 Set Firebase credentials
+      run: echo "${{ secrets.FIREBASE_KEY }}" > firebase_key.json
+
+    - name: 🌍 Export FIREBASE_KEY as environment variable
+      run: |
+        export FIREBASE_KEY="$(cat firebase_key.json)"
+        python retrain.py
+      env:
+        FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
 
     - name: 📊 Run evaluation
       run: python evaluate.py

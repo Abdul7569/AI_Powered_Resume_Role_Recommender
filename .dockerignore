@@ -9,3 +9,4 @@ artifacts/
 .idea/
 *.DS_Store
 firebase_key
+.streamlit/secrets.toml

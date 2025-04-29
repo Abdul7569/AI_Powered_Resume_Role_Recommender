@@ -31,7 +31,7 @@ model = SentenceTransformer('all-mpnet-base-v2')
 
 # Paths
 output_path = "role_embeddings.pkl"
-role_data_path = "job_title_des_cleaned.csv"
+role_data_path = "job_title_des_cleaned.csv" 
 
 # ✅ Load base job title dataset
 data_frames = []
@@ -92,10 +92,14 @@ print(f"✅ Total retraining roles: {len(roles)}")
 # ✅ Generate updated embeddings
 updated_embeddings = model.encode(descriptions, convert_to_tensor=False)
 
-# ✅ Save updated embeddings
-os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+output_dir = os.path.dirname(output_path)
+if output_dir:  # Only create if it's not an empty string
+    os.makedirs(output_dir, exist_ok=True)
+
 with open(output_path, "wb") as f:
     pickle.dump(updated_embeddings, f)
 
 print(f"✅ New role embeddings saved to: {output_path}")
 print(f"🕒 Timestamp: {datetime.now().isoformat()}")
+
